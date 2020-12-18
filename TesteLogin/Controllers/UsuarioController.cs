@@ -1,10 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Data;
 using System.Threading.Tasks;
 using TesteLogin.Business.Entities;
 using TesteLogin.Business.Repositories;
 using TesteLogin.Filter;
 using TesteLogin.Models.Usuarios;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using TesteLogin.Infraestruture.data;
+using System.Linq;
 
 namespace TesteLogin.Controllers
 {
@@ -36,17 +42,28 @@ namespace TesteLogin.Controllers
         [ValidacaoModelStateCustomizado]
         public async Task<IActionResult> Logar(LoginViewModelInput loginViewModelInput)
         {
-            Usuario usuario = await _usuariorepository.ObterUsuario(loginViewModelInput.Login);
 
-            if (usuario == null)
-            {
-                return BadRequest("Houve um erro ao tentar acessar.");
-            }
+            var optionsBuilder = new DbContextOptionsBuilder<SkyDbContext>();
+            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=Curso;Trusted_Connection = True");
+            SkyDbContext contexto = new SkyDbContext(optionsBuilder.Options);
 
-            //if (usuario.Senha != loginViewModelInput.Senha.GerarSenhaCriptografica())
+            //if (usuario == null)
             //{
             //    return BadRequest("Houve um erro ao tentar acessar.");
             //}
+
+            using (IDbConnection db = new SqlConnection("Server=localhost\\SQLEXPRESS;Database = Curso;Trusted_Connection = True"))
+            {
+                string sql = @"SELECT * FROM TB_USUARIO where Login = @login and Senha = @senha";
+                Usuario login = db
+                    .QueryFirstOrDefault<Usuario>(sql, new { Login = loginViewModelInput.Login, Senha = loginViewModelInput.Senha });
+
+                if (login == null)
+                    return BadRequest("Houve um erro ao tentar acessar.");
+            }
+        
+
+            Usuario usuario = contexto.Usuario.FirstOrDefault(u => u.Login == loginViewModelInput.Login);
 
             var usuarioViewModelOutput = new UsuarioViewModelOutput()
             {
@@ -71,12 +88,17 @@ namespace TesteLogin.Controllers
         public IActionResult Registrar(RegistroViewModelInput loginViewModelInput)
         {
 
+            var optionsBuilder = new DbContextOptionsBuilder<SkyDbContext>();
+            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=Curso;Trusted_Connection = True");
+            SkyDbContext contexto = new SkyDbContext(optionsBuilder.Options);
+
+
             var usuario = new Usuario();
             usuario.Login = loginViewModelInput.Login;
             usuario.Senha = loginViewModelInput.Senha;
             usuario.Email = loginViewModelInput.Email;
-            _usuariorepository.Adicionar(usuario);
-            _usuariorepository.Commit();
+            contexto.Add(usuario);
+            contexto.SaveChanges();
 
 
 

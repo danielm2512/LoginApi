@@ -19,7 +19,8 @@ namespace TesteLogin.Configuration
 
         public string GerarToken(UsuarioViewModelOutput usuarioViewModelOutput)
         {
-            var secret = Encoding.ASCII.GetBytes(_configuration.GetSection("JwtConfiguration:Secret").Value);
+            //var secret = Encoding.ASCII.GetBytes(_configuration.GetSection("JwtConfiguration:Secret").Value);
+            var secret = Encoding.ASCII.GetBytes("MzfsT&d9gprP>!9$Es(X!5g@;ef!5sbk:jH\\2.}8ZP'qY#7");
             var symmetricSecurityKey = new SymmetricSecurityKey(secret);
             var securityTokenDescriptor = new SecurityTokenDescriptor
 
@@ -30,7 +31,7 @@ namespace TesteLogin.Configuration
                     new Claim(ClaimTypes.Name, usuarioViewModelOutput.Login.ToString()),
                     new Claim(ClaimTypes.Email, usuarioViewModelOutput.Email.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddDays(1),
+                Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature)
             };
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
