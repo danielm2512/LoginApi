@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TesteLogin.Models.Usuarios
+namespace TesteLogin.UseCases.Login
 {
-    public class LoginViewModelInput
+    public sealed class LoginRequest
     {
         [Required(ErrorMessage = "O Usuario é obrigatorio")]
         public string Usuario { get; set; }
         [Required(ErrorMessage = "A Senha é obrigatoria")]
-        public string Senha { get; set; }
+        public string Password { get; set; }
     }
 }

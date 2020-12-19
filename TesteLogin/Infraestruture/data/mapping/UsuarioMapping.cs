@@ -8,7 +8,7 @@ namespace TesteLogin.Infraestruture.data.mapping
     {
         public void Configure(EntityTypeBuilder<Usuario> builder)
         {
-            builder.ToTable("TB_USUARIO");
+            builder.ToTable("TB_USUARIOFINAL");
             builder.HasKey(p => p.Codigo);
             builder.Property(p => p.Codigo).ValueGeneratedOnAdd();
             builder.Property(p => p.Login);

@@ -4,7 +4,7 @@
         <name>TesteLogin</name>
     </assembly>
     <members>
-        <member name="M:TesteLogin.Controllers.UsuarioController.Logar(TesteLogin.Models.Usuarios.LoginViewModelInput)">
+        <member name="M:TesteLogin.UseCases.Login.UsuarioController.Logar(TesteLogin.UseCases.Login.LoginRequest)">
             <summary>
             Este serviço permite autenticar um usuário cadastrado e ativo
             </summary>

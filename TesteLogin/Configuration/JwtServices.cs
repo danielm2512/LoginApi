@@ -4,7 +4,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TesteLogin.Models.Usuarios;
+using TesteLogin.Infrastructure.Data.Entities;
 
 namespace TesteLogin.Configuration
 {
@@ -17,7 +17,7 @@ namespace TesteLogin.Configuration
             _configuration = configuration;
         }
 
-        public string GerarToken(UsuarioViewModelOutput usuarioViewModelOutput)
+        public string GerarToken(Login login)
         {
             //var secret = Encoding.ASCII.GetBytes(_configuration.GetSection("JwtConfiguration:Secret").Value);
             var secret = Encoding.ASCII.GetBytes("MzfsT&d9gprP>!9$Es(X!5g@;ef!5sbk:jH\\2.}8ZP'qY#7");
@@ -27,9 +27,9 @@ namespace TesteLogin.Configuration
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, usuarioViewModelOutput.Codigo.ToString()),
-                    new Claim(ClaimTypes.Name, usuarioViewModelOutput.Login.ToString()),
-                    new Claim(ClaimTypes.Email, usuarioViewModelOutput.Email.ToString())
+                    new Claim(ClaimTypes.NameIdentifier, login.Id.ToString()),
+                    new Claim(ClaimTypes.Name, login.Usuario.ToString()),
+                    new Claim(ClaimTypes.Email, login.Email.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature)

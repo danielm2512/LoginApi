@@ -11,10 +11,10 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using TesteLogin.Business.Repositories;
+using TesteLogin.Application.Repositories;
 using TesteLogin.Configuration;
 using TesteLogin.Infraestruture.data;
-using TesteLogin.Infraestruture.data.repositories;
+using TesteLogin.Infrastructure.Data.Repositories;
 
 namespace TesteLogin
 {
@@ -94,7 +94,7 @@ namespace TesteLogin
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
-            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            services.AddScoped<ILoginReadOnlyRepository, LoginRepository>();
             services.AddScoped<IAuthenticationService, JwtServices>();
         }
 

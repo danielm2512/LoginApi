@@ -1,32 +1,35 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TesteLogin.Business.Entities;
-using TesteLogin.Business.Repositories;
 using TesteLogin.Filter;
-using TesteLogin.Models.Usuarios;
-using Dapper;
-using Microsoft.EntityFrameworkCore;
 using TesteLogin.Infraestruture.data;
-using System.Linq;
+using TesteLogin.Models.Usuarios;
+using TesteLogin.Application.UseCases.Login;
+using TesteLogin.Application.Repositories;
+using TesteLogin.Domain.Stores;
+using TesteLogin.Controllers;
 
-namespace TesteLogin.Controllers
+namespace TesteLogin.UseCases.Login
 {
     [Route("[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class LoginController : ControllerBase
     {
-        private readonly IUsuarioRepository _usuariorepository;
         private readonly Configuration.IAuthenticationService _authenticationService;
+        private readonly ILoginReadOnlyRepository _loginReadOnlyRepository;
 
-        public UsuarioController(
-            IUsuarioRepository usuariorepository,
-            Configuration.IAuthenticationService authenticationService)
+        public LoginController(
+            Configuration.IAuthenticationService authenticationService,
+            ILoginReadOnlyRepository loginReadOnlyRepository)
         {
-            _usuariorepository = usuariorepository;
             _authenticationService = authenticationService;
+            _loginReadOnlyRepository = loginReadOnlyRepository;
         }
 
         /// <summary>
@@ -40,45 +43,32 @@ namespace TesteLogin.Controllers
         [HttpPost]
         [Route("logar")]
         [ValidacaoModelStateCustomizado]
-        public async Task<IActionResult> Logar(LoginViewModelInput loginViewModelInput)
+        public async Task<IActionResult> Logar(LoginRequest login)
         {
 
             var optionsBuilder = new DbContextOptionsBuilder<SkyDbContext>();
             optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=Curso;Trusted_Connection = True");
             SkyDbContext contexto = new SkyDbContext(optionsBuilder.Options);
 
-            //if (usuario == null)
+
+
+            var usuario = _loginReadOnlyRepository.Get(login.Usuario, login.Password);
+
+
+            //var usuarioViewModelOutput = new UsuarioViewModelOutput()
             //{
-            //    return BadRequest("Houve um erro ao tentar acessar.");
-            //}
+            //    Codigo = usuario.Id,
+            //    Login = usuario.,
+            //    Email = usuario.Email
 
-            using (IDbConnection db = new SqlConnection("Server=localhost\\SQLEXPRESS;Database = Curso;Trusted_Connection = True"))
-            {
-                string sql = @"SELECT * FROM TB_USUARIO where Login = @login and Senha = @senha";
-                Usuario login = db
-                    .QueryFirstOrDefault<Usuario>(sql, new { Login = loginViewModelInput.Login, Senha = loginViewModelInput.Senha });
+            //};
 
-                if (login == null)
-                    return BadRequest("Houve um erro ao tentar acessar.");
-            }
-        
-
-            Usuario usuario = contexto.Usuario.FirstOrDefault(u => u.Login == loginViewModelInput.Login);
-
-            var usuarioViewModelOutput = new UsuarioViewModelOutput()
-            {
-                Codigo = usuario.Codigo,
-                Login = loginViewModelInput.Login,
-                Email = usuario.Email
-
-            };
-
-            var token = _authenticationService.GerarToken(usuarioViewModelOutput);
+            //var token = _authenticationService.GerarToken(usuario);
 
             return Ok(new
             {
-                Token = token,
-                Usuario = usuarioViewModelOutput
+                //Token = token,
+                Usuario = usuario
             });
         }
 
